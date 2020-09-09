@@ -1,14 +1,30 @@
-var database,mousePosition=[],dbDrawing=[];
+var database,canvas,mousePosition=[],dbDrawing=[];
 function setup(){
+	canvas=createCanvas(1000,1000)
+	canvas.parent('canvascontainer');
 	database=firebase.database();
-	createCanvas(1000,1000)
-	background(255)
-}
+	
+	background(51)
 
+	//var clear=createButton("Clear Drawing")
+	//clear.position(100,950)
+	
+	var clearbutton = select('#clearbutton')
+	clearbutton.mousePressed(clearDrawing);
+}
+function mouseDragged(){
+	var point={x:mouseX,y:mouseY};
+	mousePosition.push(point);
+
+	var drawingReference=database.ref('drawing');
+	drawingReference.set({
+		"d":mousePosition
+	})
+}
 function draw(){
 	readData();
 	beginShape();
-	stroke("black")
+	stroke("white")
 	strokeWeight(3)
 	noFill();
 	for(var i=0;i<dbDrawing.length;i++){
@@ -17,15 +33,14 @@ function draw(){
 	}
 	
 }
-function mouseDragged(){
-	var point={x:mouseX,y:mouseY};
-	mousePosition.push(point);
 
-	var drawingReference=database.ref('drawing');
-	drawingReference.set({d:mousePosition})
-}
 function readData(){
 	database.ref('drawing/').on('value',(data)=>{
 		dbDrawing=data.val().d
 	})
+}
+function clearDrawing(){
+	db_drawing = []
+	var drawRef = database.ref('drawing');
+    drawRef.remove()
 }
